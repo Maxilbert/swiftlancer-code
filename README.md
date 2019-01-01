@@ -13,4 +13,4 @@ Worker 3 (0xeb00e4c95368d1f7f440d304a0084de5904f17e1): 7.489 M gas
 
 Rquester (optimistic case): 3.58 M gas for the whole protocol
 
-Rquester (worst case): about 5.26 M gas to reject per each submission
+Rquester (worst case): average  3*(1.3+1.9)/2 M gas to reject per each submission
