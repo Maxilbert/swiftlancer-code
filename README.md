@@ -1,6 +1,6 @@
 # swiftlancer-code
 
-A deployed instance at Ropsten network
+A deployed instance at Ropsten network (over Zp*)
 https://ropsten.etherscan.io/address/0x246c243ed4cbbf2d3f7e807b44ba5edda40382a7
 
 Worker 0 (0xbeef1bed3677fe070591074de013cd371b121027): 7.52 M gas
