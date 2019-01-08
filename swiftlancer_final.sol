@@ -14,6 +14,16 @@ contract SwiftLancerParameters {
     
 }
 
+contract RegistrationAuthority {
+    
+    address public authority;
+    mapping(address => bool) public users;
+    
+    constructor () public {    }
+    //function add (address user) public  {}
+    //function revoke (address user) public { }
+    
+}
 
 contract SwiftLancer{
         
@@ -47,7 +57,8 @@ contract SwiftLancer{
     uint[6] public actual_gold_solutions;
     
     SwiftLancerParameters parameters;
-    
+    RegistrationAuthority ra;
+
 
     bytes32 public task_swarm_addr = 0xb833be6d483c981488a6b0f32fd133f9f7b8810a9663becb38359c1731210529;
     //https://swarm-gateways.net/bzz:/b833be6d483c981488a6b0f32fd133f9f7b8810a9663becb38359c1731210529/
@@ -67,6 +78,7 @@ contract SwiftLancer{
     
     constructor () public{
         parameters = SwiftLancerParameters(0xe259adC77c6F214233Ab42e1c10f07ffd3314C64);
+                ra = RegistrationAuthority(0x8884A1aca7D2F031d674994232c10Ba64fC33903);
         requester = msg.sender;
     }
     
@@ -144,7 +156,7 @@ contract SwiftLancer{
         if(solexp == 1) {
             lhs = lhs.modmul(parameters.get_g().prepare_modexp(c, p), p);
         }
-        return (BigNumber.cmp(lhs, rhs, true) == 0);
+        return (BigNumber.equal(lhs,rhs));
     }
     
     
@@ -176,6 +188,7 @@ contract SwiftLancer{
     // workers submitting answers to the contract
     function submit_answers(uint[40] memory i, bytes[40] memory c_1, bytes[40] memory c_2) {
         address worker = msg.sender;
+        require (ra.users(worker));
         for (uint j = 0; j < 40; j++) {
             bytes32 hash = sha3(c_1[j],c_2[j]);
             emit Ciphertexts(c_1[j], c_2[j]);
@@ -189,6 +202,11 @@ contract SwiftLancer{
                 answers_map[worker].counter = 1;
             }
             if (answers_map[worker].counter == 106 && workers_counter < 4) {
+                for (uint k = 0; k < workers_counter; k++) {
+                    if (workers[k] == worker) {
+                        return;
+                    }
+                }
                 workers[workers_counter] = worker;
                 workers_counter += 1;
                 answers_map[worker].err_indexes = [106,106,106];
@@ -200,6 +218,7 @@ contract SwiftLancer{
     // workers submitting answers to the contract
     function submit_answers(uint[33] memory i, bytes[33] memory c_1, bytes[33] memory c_2) {
         address worker = msg.sender;
+        require (ra.users(worker));
         for (uint j = 0; j < 33; j++) {
             bytes32 hash = sha3(c_1[j],c_2[j]);
             emit Ciphertexts(c_1[j], c_2[j]);
@@ -213,6 +232,11 @@ contract SwiftLancer{
                 answers_map[worker].counter = 1;
             }
             if (answers_map[worker].counter == 106 && workers_counter < 4) {
+                for (uint k = 0; k < workers_counter; k++) {
+                    if (workers[k] == worker) {
+                        return;
+                    }
+                }
                 workers[workers_counter] = worker;
                 workers_counter += 1;
                 answers_map[worker].err_indexes = [106,106,106];
@@ -229,4 +253,5 @@ contract SwiftLancer{
     function toBytes(bytes32 _data) public pure returns (bytes memory) {
         return abi.encodePacked(_data);
     }
+    
 }
