@@ -1,12 +1,18 @@
 pragma solidity ^0.4.25;
-pragma experimental ABIEncoderV2;
+//pragma experimental ABIEncoderV2;
 
 import "./BN128.sol";
 
 
-contract SwiftLancerParameters {
-    function get_g () view returns (BN128.G1Point memory) {}
-    function get_h () view returns (BN128.G1Point memory) {}
+contract RegistrationAuthority {
+    
+    address public authority;
+    mapping(address => bool) public users;
+    
+    constructor () public {    }
+    //function add (address user) public  {}
+    //function revoke (address user) public { }
+    
 }
 
 
@@ -15,6 +21,8 @@ contract SwiftLancer{
     using BN128 for *;
 
     event FillGold(string a);
+    
+    event debug (bool a);
     
     event OpenGold(string b);
     
@@ -27,7 +35,10 @@ contract SwiftLancer{
         uint c2_y
     );
     
-    SwiftLancerParameters parameters;
+    address public requester;
+    
+    //SwiftLancerParameters parameters;
+    RegistrationAuthority ra;
     
     // answers of workers
     struct answers {
@@ -35,15 +46,6 @@ contract SwiftLancer{
         uint[3] err_indexes;
         uint err_counter;
     }
-    
-    address public requester;
-    uint[6] public actual_gold_indices;
-    uint[6] public actual_gold_solutions;
-    
-
-    bytes32 public task_swarm_addr = 0xb833be6d483c981488a6b0f32fd133f9f7b8810a9663becb38359c1731210529;
-    //https://swarm-gateways.net/bzz:/b833be6d483c981488a6b0f32fd133f9f7b8810a9663becb38359c1731210529/
-    
     
     struct GoldenStandard{
         bytes32[6] index_val;
@@ -53,12 +55,20 @@ contract SwiftLancer{
     
     GoldenStandard public gs;
     
+ 
+    uint[6] public actual_gold_indices;
+    uint[6] public actual_gold_solutions;
+    
+
+    bytes32 public task_swarm_addr = 0xb833be6d483c981488a6b0f32fd133f9f7b8810a9663becb38359c1731210529;
+    //https://swarm-gateways.net/bzz:/b833be6d483c981488a6b0f32fd133f9f7b8810a9663becb38359c1731210529/
     mapping(address => answers) public answers_map;
     address[4] public workers = [0,0,0,0];
     uint public workers_counter = 0;
     
     constructor () public{
-        parameters = SwiftLancerParameters(0x7b3dc9590d8ecfd98adfb7490d6a51a93e91658d);
+        //parameters = SwiftLancerParameters(0x7b3dc9590d8ecfd98adfb7490d6a51a93e91658d);
+        ra = RegistrationAuthority(0x8884A1aca7D2F031d674994232c10Ba64fC33903);
         requester = msg.sender;
     }
     
@@ -138,8 +148,8 @@ contract SwiftLancer{
     
     
     // 
-    function prepare_nizk_challenge(uint a_x, uint a_y) internal returns (uint) {
-        return (uint(sha3(a_x, a_y)) >> 130);
+    function prepare_nizk_challenge(uint a_x, uint a_y) internal pure returns (uint) {
+        return (uint(keccak256(a_x, a_y)) >> 130);
     }
     
     
@@ -160,26 +170,35 @@ contract SwiftLancer{
     
     // workers submitting answers to the contract
     //function submit_answers(uint[106] memory i, uint[106] memory c1_x, uint[106] memory c1_y, uint[106] memory c2_x, uint[106] memory c2_y) {
-    function submit_answers(uint[106] memory c1_x, uint[106] memory c1_y, uint[106] memory c2_x, uint[106] memory c2_y) {
+    function submit_answers(uint[106] memory c1_x, uint[106] memory c1_y, uint[106] memory c2_x, uint[106] memory c2_y) public returns (bool) {
         address worker = msg.sender;
-        bytes32 hash = sha3(c1_x[j],c1_y[j],c2_x[j],c2_y[j]);
+        require (ra.users(worker));
+        bytes32 hash = keccak256(c1_x[j],c1_y[j],c2_x[j],c2_y[j]);
         emit Ciphertexts(c1_x[j],c1_y[j],c2_x[j],c2_y[j]);
-        answers hisAnswers;
+        answers memory hisAnswers;
         hisAnswers.ciphers[0] = hash;
         answers_map[worker] = hisAnswers;
         for (uint j = 1; j < 106; j++) {
-            hash = sha3(c1_x[j],c1_y[j],c2_x[j],c2_y[j]);
+            hash = keccak256(c1_x[j],c1_y[j],c2_x[j],c2_y[j]);
             emit Ciphertexts(c1_x[j],c1_y[j],c2_x[j],c2_y[j]);
             answers_map[worker].ciphers[j] = hash;
+        }
+        for (uint i = 0; i < workers_counter; i ++) {
+            if (workers[workers_counter] == worker) {
+                return false;
+            }
         }
         if (workers_counter < 4) {
             workers[workers_counter] = worker;
             workers_counter += 1;
             answers_map[worker].err_indexes = [106,106,106];
         }
+        return true;
     }
     
-    
+    //function validate (address worker) constant returns (bool status) {
+    //    return(ra.users(worker));
+    //}
 
 
 }
