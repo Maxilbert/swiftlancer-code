@@ -30,3 +30,17 @@ Worker 3 (0xeb00e4c95368d1f7f440d304a0084de5904f17e1): 3.48 M gas
 Rquester (optimistic case): 2.0 M gas for the whole protocol
 
 Rquester (worst case): average  (0.141+0.184+0.199) = 0.524 M gas to reject per each submission
+
+
+## An incorrect implementation of Mr. Hridam Basu also deployed at Ropsten network
+https://ropsten.etherscan.io/address/0xac570542f9837c3f413280cc75c2adae9ce09e2b
+
+The errors of his implementation include but not limit to:
+
+1. The public key algorithms are implemented over the group of Zp*, where DDH assumption does not hold;
+
+2. The answer of each worker is broken into 106 transactions;
+
+3. There is no user authentication procedures to protect against Sybil attackers.
+
+Here we highlight that this repository resovles all the above issues by doing significant efforts. Not only the security issues are fixed, but also the overall on-chain cost is reduce to only half of the incorrect implementation of Mr. Hridam Basu.
