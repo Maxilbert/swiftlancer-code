@@ -43,4 +43,4 @@ The errors of the earlier implementation include but not limit to:
 
 3. There is no user authentication procedures to protect against Sybil attackers.
 
-Here we highlight that this repository resovles all the above issues by doing significant efforts. Not only the security issues are fixed, but also the overall on-chain cost is reduce to only half of the incorrect implementation of Mr. Hridam Basu.
+Here we highlight that this repository resovles all the above issues by doing significant efforts. Not only the security issues are fixed, but also the overall on-chain cost is reduced to only half of the earlier incorrect implementation.
