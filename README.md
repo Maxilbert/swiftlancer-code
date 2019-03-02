@@ -32,10 +32,10 @@ Rquester (optimistic case): 2.0 M gas for the whole protocol
 Rquester (worst case): average  (0.141+0.184+0.199) = 0.524 M gas to reject per each submission
 
 
-## An incorrect implementation of Mr. Hridam Basu also deployed at Ropsten network
+## An incorrect implementation also deployed at Ropsten network in the earlier
 https://ropsten.etherscan.io/address/0xac570542f9837c3f413280cc75c2adae9ce09e2b
 
-The errors of his implementation include but not limit to:
+The errors of the earlier implementation include but not limit to:
 
 1. The public key algorithms are implemented over the group of Zp*, where DDH assumption does not hold;
 
